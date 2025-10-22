@@ -1,0 +1,4981 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matriz de Risco - Consulta Digital</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #34495e;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--dark));
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo i {
+            font-size: 24px;
+        }
+        
+        .logo h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+        
+        .user-info i {
+            font-size: 18px;
+        }
+        
+        /* Search Section */
+        .search-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin: 20px 0;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .search-box button {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 0 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .search-box button:hover {
+            background-color: #2980b9;
+        }
+        
+        .filter-options {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .filter-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+        }
+        
+        /* Quick Access */
+        .quick-access {
+            margin: 20px 0;
+        }
+        
+        .quick-access h2 {
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: var(--dark);
+        }
+        
+        .quick-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .quick-btn {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+        
+        .quick-btn:hover {
+            background-color: var(--light);
+            transform: translateY(-2px);
+        }
+        
+        .quick-btn.active {
+            background-color: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+        
+        /* Results */
+        .results-section {
+            margin: 20px 0;
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .results-count {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .sort-options select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .risk-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+        
+        .risk-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .risk-header {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .risk-level {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .risk-alto {
+            background-color: var(--danger);
+        }
+        
+        .risk-medio {
+            background-color: var(--warning);
+        }
+        
+        .risk-baixo {
+            background-color: var(--success);
+        }
+        
+        .risk-content {
+            padding: 15px;
+        }
+        
+        .risk-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .risk-details {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .risk-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .risk-actions {
+            padding: 10px 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.3s;
+        }
+        
+        .action-btn:hover {
+            color: var(--secondary);
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 50px auto;
+            width: 90%;
+            max-width: 800px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            animation: modalOpen 0.3s;
+        }
+        
+        @keyframes modalOpen {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h2 {
+            font-size: 20px;
+            color: var(--dark);
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .risk-detail-section {
+            margin-bottom: 20px;
+        }
+        
+        .risk-detail-section h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: var(--dark);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .detail-item {
+            margin-bottom: 10px;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .detail-value {
+            font-size: 14px;
+        }
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 100;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            color: #666;
+            font-size: 12px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .nav-item.active {
+            color: var(--secondary);
+        }
+        
+        .nav-item i {
+            font-size: 20px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+            
+            .search-box {
+                flex-direction: column;
+            }
+            
+            .filter-options {
+                flex-direction: column;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 20px auto;
+            }
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+        
+        .empty-state i {
+            font-size: 50px;
+            margin-bottom: 15px;
+            color: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <h1>Matriz de Risco Digital</h1>
+                </div>
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Operador</span>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <section class="search-section">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Digite o nome da atividade ou risco...">
+                <button id="searchButton"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="filter-options">
+                <div class="filter-group">
+                    <label for="areaFilter">Área</label>
+                    <select id="areaFilter">
+                        <option value="">Todas as áreas</option>
+                        <option value="Manutenção Mecânica">Manutenção Mecânica</option>
+                        <option value="Manutenção Elétrica">Manutenção Elétrica</option>
+                        <option value="Operação">Operação</option>
+                        <option value="Laboratório">Laboratório</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="riskFilter">Nível de Risco</label>
+                    <select id="riskFilter">
+                        <option value="">Todos os níveis</option>
+                        <option value="Alto">Alto</option>
+                        <option value="Médio">Médio</option>
+                        <option value="Baixo">Baixo</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="locationFilter">Localização</label>
+                    <select id="locationFilter">
+                        <option value="">Todas as localizações</option>
+                        <option value="Forno de Pozolana">Forno de Pozolana</option>
+                        <option value="Ensacadeira">Ensacadeira</option>
+                        <option value="Moagem de Cimento">Moagem de Cimento</option>
+                        <option value="Moagem de Coque">Moagem de Coque</option>
+                        <option value="Tombador">Tombador</option>
+                        <option value="ADM">ADM</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+        
+        <section class="quick-access">
+            <h2>Acesso Rápido</h2>
+            <div class="quick-buttons">
+                <button class="quick-btn active" data-area=""><i class="fas fa-layer-group"></i> Todos</button>
+                <button class="quick-btn" data-area="Manutenção Mecânica"><i class="fas fa-tools"></i> Manutenção Mecânica</button>
+                <button class="quick-btn" data-area="Manutenção Elétrica"><i class="fas fa-bolt"></i> Manutenção Elétrica</button>
+                <button class="quick-btn" data-area="Operação"><i class="fas fa-industry"></i> Operação</button>
+                <button class="quick-btn" data-area="Laboratório"><i class="fas fa-flask"></i> Laboratório</button>
+            </div>
+        </section>
+        
+        <section class="results-section">
+            <div class="results-header">
+                <h2>Resultados da Busca</h2>
+                <div class="results-count" id="resultsCount">0 atividades encontradas</div>
+                <div class="sort-options">
+                    <select id="sortSelect">
+                        <option value="name">Ordenar por Nome</option>
+                        <option value="risk">Ordenar por Risco</option>
+                        <option value="area">Ordenar por Área</option>
+                    </select>
+                </div>
+            </div>
+            <div class="results-grid" id="resultsGrid">
+                <!-- Os cards de risco serão inseridos aqui via JavaScript -->
+            </div>
+        </section>
+    </div>
+    
+    <!-- Modal para detalhes do risco -->
+    <div class="modal" id="riskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Detalhes do Risco</h2>
+                <button class="close-modal" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Conteúdo do modal será preenchido via JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Navegação inferior -->
+    <div class="bottom-nav">
+        <div class="nav-item active" data-page="search">
+            <i class="fas fa-search"></i>
+            <span>Consultar</span>
+        </div>
+        <div class="nav-item" data-page="favorites">
+            <i class="fas fa-star"></i>
+            <span>Favoritos</span>
+        </div>
+        <div class="nav-item" data-page="recent">
+            <i class="fas fa-history"></i>
+            <span>Recentes</span>
+        </div>
+        <div class="nav-item" data-page="about">
+            <i class="fas fa-info-circle"></i>
+            <span>Sobre</span>
+        </div>
+    </div>
+
+    <script>
+        // Dados da matriz de risco (exemplo com alguns dados do JSON fornecido)
+        // DADOS COMPLETOS DA MATRIZ DE RISCO - 274 REGISTROS
+const riskData = [
+{
+    id: "I-1",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Aplic. Grafite Alianças Forno",
+    risk: "Exposição à Ruído contínuo",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Protetor auricular",
+    controls: "Manutenção preventiva de equipamentos, rodízio de funcionários",
+    legislation: "NR-15"
+},
+{
+    id: "I-2", 
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Aplic. Grafite Alianças Forno",
+    risk: "Exposição à Vibração de Corpo Inteiro (VCI)",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Calçado de segurança com amortecimento",
+    controls: "Limitação do tempo de exposição, pausas programadas",
+    legislation: "NR-15"
+},
+{
+    id: "I-3",
+    area: "Manutenção Mecânica", 
+    location: "Forno de Pozolana",
+    activity: "Aplic. Grafite Alianças Forno",
+    risk: "Exposição à Calor (Sobrecarga térmica)",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Vestimenta adequada, protetor solar",
+    controls: "Pausas em ambiente climatizado, hidratação constante",
+    legislation: "NR-15"
+},
+{
+    id: "I-4",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana", 
+    activity: "Aplic. Grafite Alianças Forno",
+    risk: "Exposição à Radiação Não Ionizante - Radiação Solar",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Protetor solar, óculos escuros, chapéu",
+    controls: "Evitar exposição nos horários de pico",
+    legislation: "NR-15"
+},
+{
+    id: "I-5",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Aplic. Grafite Alianças Forno", 
+    risk: "Exposição à Radiação Não Ionizante- Operações de Soldagem",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Óculos de proteção com filtro UV",
+    controls: "Área isolada, sinalização adequada",
+    legislation: "NR-15"
+},
+{
+    id: "I-6",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Aplic. Grafite Alianças Forno",
+    risk: "Inalação de poeira mineral (contendo sílica livre cristalizada)", 
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Máscara PFF2, óculos de proteção",
+    controls: "Sistema de exaustão, umidificação do ambiente",
+    legislation: "NR-15"
+},
+{
+    id: "I-7",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Aplic. Grafite Alianças Forno",
+    risk: "Inalação de poeira metálica",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Máscara PFF1",
+    controls: "Ventilação local exaustora",
+    legislation: "NR-15"
+},
+{
+    id: "I-8",
+    area: "Manutenção Mecânica", 
+    location: "Forno de Pozolana",
+    activity: "Aplic. Grafite Alianças Forno",
+    risk: "Inalação de gases ácidos",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Máscara com filtro químico",
+    controls: "Monitoramento atmosférico, ventilação",
+    legislation: "NR-15"
+},
+{
+    id: "I-9",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Aplic. Grafite Alianças Forno", 
+    risk: "Inalação de fumos metálicos",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Máscara PFF2",
+    controls: "Ventilação local exaustora",
+    legislation: "NR-15"
+},
+{
+    id: "I-10",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Aplic. Grafite Alianças Forno",
+    risk: "Postura de pé por longos períodos",
+    frequency: 4,
+    severity: 2, 
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Calçado de segurança com palmilha antifatiga",
+    controls: "Pausas ativas, rodízio de atividades",
+    legislation: "NR-17"
+},
+{
+    id: "I-11",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Aplic. Grafite Alianças Forno", 
+    risk: "Postura restrita de longa duração",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Nenhum específico",
+    controls: "Ginástica laboral, pausas programadas",
+    legislation: "NR-17"
+},
+{
+    id: "I-12",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Aplic. Grafite Alianças Forno",
+    risk: "Ataque de ser vivo com peçonha", 
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Botas de segurança, luvas de couro",
+    controls: "Manutenção da área limpa, inspeção prévia",
+    legislation: "NR-31"
+},
+{
+    id: "I-13",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Aplic. Grafite Alianças Forno",
+    risk: "Contato com Energia elétrica",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Luvas de borracha, botas isolantes",
+    controls: "Bloqueio e etiquetagem, treinamento específico",
+    legislation: "NR-10"
+},
+{
+    id: "I-14",
+    area: "Manutenção Mecânica", 
+    location: "Forno de Pozolana",
+    activity: "Aplic. Grafite Alianças Forno",
+    risk: "Contato com Material/Produto Inflamável/Combustível (serviços de soldagem e corte)",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Luva de raspa, óculos de proteção, avental",
+    controls: "Área isolada, extintores disponíveis, treinamento específico",
+    legislation: "NR-23"
+},
+{
+    id: "I-15",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Aplic. Grafite Alianças Forno", 
+    risk: "Contato com Objeto/ material cortante",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Luvas de malha de aço",
+    controls: "Organização do local, treinamento",
+    legislation: "NR-12"
+},
+{
+    id: "I-16",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Aplic. Grafite Alianças Forno",
+    risk: "Impacto por Objeto Projetado",
+    frequency: 4,
+    severity: 2, 
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Óculos de proteção, capacete",
+    controls: "Sinalização de área, barreiras de proteção",
+    legislation: "NR-18"
+},
+{
+    id: "I-17",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Aplic. Grafite Alianças Forno", 
+    risk: "Queda de pessoa com diferença de nível - Trabalho em altura",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Cinto de segurança tipo paraquedista, capacete",
+    controls: "Plataforma de trabalho, treinamento NR-35",
+    legislation: "NR-35"
+},
+{
+    id: "I-18",
+    area: "Manutenção Mecânica",
+    location: "ADM",
+    activity: "CQ - Verificação Eq Laboratório - Semest",
+    risk: "Exposição à Ruído contínuo",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Protetor auricular",
+    controls: "Manutenção preventiva de equipamentos",
+    legislation: "NR-15"
+},
+{
+    id: "I-19",
+    area: "Manutenção Mecânica", 
+    location: "ADM",
+    activity: "CQ - Verificação Eq Laboratório - Semest",
+    risk: "Exposição à Vibração de Corpo Inteiro (VCI)",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Calçado de segurança com amortecimento",
+    controls: "Limitação do tempo de exposição",
+    legislation: "NR-15"
+},
+{
+    id: "I-20",
+    area: "Manutenção Mecânica",
+    location: "ADM",
+    activity: "CQ - Verificação Eq Laboratório - Semest", 
+    risk: "Exposição à Calor (Sobrecarga térmica)",
+    frequency: 3,
+    severity: 2,
+    score: 6,
+    riskLevel: "Baixo",
+    ppe: "Vestimenta adequada",
+    controls: "Pausas em ambiente climatizado",
+    legislation: "NR-15"
+},
+{
+    id: "I-21",
+    area: "Manutenção Mecânica",
+    location: "ADM",
+    activity: "CQ - Verificação Eq Laboratório - Semest",
+    risk: "Exposição à Radiação Não Ionizante - Radiação Solar",
+    frequency: 3,
+    severity: 1, 
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Protetor solar",
+    controls: "Evitar exposição nos horários de pico",
+    legislation: "NR-15"
+},
+{
+    id: "I-22",
+    area: "Manutenção Mecânica",
+    location: "ADM",
+    activity: "CQ - Verificação Eq Laboratório - Semest", 
+    risk: "Exposição à Radiação Não Ionizante- Operações de Soldagem",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Óculos de proteção com filtro UV",
+    controls: "Área isolada",
+    legislation: "NR-15"
+},
+{
+    id: "I-23",
+    area: "Manutenção Mecânica",
+    location: "ADM",
+    activity: "CQ - Verificação Eq Laboratório - Semest",
+    risk: "Inalação de poeira mineral (contendo sílica livre cristalizada)",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Máscara PFF2",
+    controls: "Ventilação local exaustora",
+    legislation: "NR-15"
+},
+{
+    id: "I-24",
+    area: "Manutenção Mecânica", 
+    location: "ADM",
+    activity: "CQ - Verificação Eq Laboratório - Semest",
+    risk: "Inalação de poeira metálica",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Máscara PFF1",
+    controls: "Ventilação local exaustora",
+    legislation: "NR-15"
+},
+{
+    id: "I-25",
+    area: "Manutenção Mecânica",
+    location: "ADM",
+    activity: "CQ - Verificação Eq Laboratório - Semest", 
+    risk: "Inalação de gases ácidos",
+    frequency: 3,
+    severity: 4,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Máscara com filtro químico",
+    controls: "Monitoramento atmosférico, ventilação forçada",
+    legislation: "NR-15"
+},
+{
+    id: "I-26",
+    area: "Manutenção Mecânica",
+    location: "ADM",
+    activity: "CQ - Verificação Eq Laboratório - Semest",
+    risk: "Inalação de fumos metálicos",
+    frequency: 3,
+    severity: 4, 
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Máscara PFF2",
+    controls: "Ventilação local exaustora, monitoramento",
+    legislation: "NR-15"
+},
+{
+    id: "I-27",
+    area: "Manutenção Mecânica",
+    location: "ADM",
+    activity: "CQ - Verificação Eq Laboratório - Semest", 
+    risk: "Postura de pé por longos períodos",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Calçado de segurança com palmilha antifatiga",
+    controls: "Pausas ativas",
+    legislation: "NR-17"
+},
+{
+    id: "I-28",
+    area: "Manutenção Mecânica",
+    location: "ADM",
+    activity: "CQ - Verificação Eq Laboratório - Semest",
+    risk: "Postura restrita de longa duração",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Nenhum específico",
+    controls: "Ginástica laboral",
+    legislation: "NR-17"
+},
+{
+    id: "I-29",
+    area: "Manutenção Mecânica", 
+    location: "ADM",
+    activity: "CQ - Verificação Eq Laboratório - Semest",
+    risk: "Ataque de ser vivo com peçonha",
+    frequency: 3,
+    severity: 3,
+    score: 9,
+    riskLevel: "Baixo",
+    ppe: "Botas de segurança",
+    controls: "Manutenção da área limpa",
+    legislation: "NR-31"
+},
+{
+    id: "I-30",
+    area: "Manutenção Mecânica",
+    location: "ADM",
+    activity: "CQ - Verificação Eq Laboratório - Semest", 
+    risk: "Contato com Energia elétrica",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Luvas de borracha",
+    controls: "Bloqueio e etiquetagem",
+    legislation: "NR-10"
+},
+{
+    id: "I-31",
+    area: "Manutenção Mecânica",
+    location: "ADM",
+    activity: "CQ - Verificação Eq Laboratório - Semest",
+    risk: "Contato com Material/Produto Inflamável/Combustível (serviços de soldagem e corte)",
+    frequency: 3,
+    severity: 4, 
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Luva de raspa, óculos de proteção",
+    controls: "Área isolada, extintores disponíveis",
+    legislation: "NR-23"
+},
+{
+    id: "I-32",
+    area: "Manutenção Mecânica",
+    location: "ADM",
+    activity: "CQ - Verificação Eq Laboratório - Semest", 
+    risk: "Contato com Objeto/ material cortante",
+    frequency: 3,
+    severity: 2,
+    score: 6,
+    riskLevel: "Baixo",
+    ppe: "Luvas de malha de aço",
+    controls: "Organização do local",
+    legislation: "NR-12"
+},
+{
+    id: "I-33",
+    area: "Manutenção Mecânica",
+    location: "ADM",
+    activity: "CQ - Verificação Eq Laboratório - Semest",
+    risk: "Impacto por Objeto Projetado",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Óculos de proteção",
+    controls: "Sinalização de área",
+    legislation: "NR-18"
+},
+{
+    id: "I-34",
+    area: "Manutenção Mecânica", 
+    location: "ADM",
+    activity: "CQ - Verificação Eq Laboratório - Semest",
+    risk: "Queda de pessoa com diferença de nível - Trabalho em altura",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Cinto de segurança",
+    controls: "Plataforma de trabalho",
+    legislation: "NR-35"
+},
+{
+    id: "I-35",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp Sist Inj Óleo W1V41 -Trimestral", 
+    risk: "Exposição à Ruído contínuo",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Protetor auricular",
+    controls: "Manutenção preventiva de equipamentos, rodízio de funcionários",
+    legislation: "NR-15"
+},
+{
+    id: "I-36",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp Sist Inj Óleo W1V41 -Trimestral",
+    risk: "Exposição à Vibração de Corpo Inteiro (VCI)",
+    frequency: 4,
+    severity: 2, 
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Calçado de segurança com amortecimento",
+    controls: "Limitação do tempo de exposição, pausas programadas",
+    legislation: "NR-15"
+},
+{
+    id: "I-37",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp Sist Inj Óleo W1V41 -Trimestral", 
+    risk: "Exposição à Calor (Sobrecarga térmica)",
+    frequency: 4,
+    severity: 4,
+    score: 16,
+    riskLevel: "Médio",
+    ppe: "Vestimenta adequada, protetor solar",
+    controls: "Pausas em ambiente climatizado, hidratação constante, monitoramento térmico",
+    legislation: "NR-15"
+},
+{
+    id: "I-38",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp Sist Inj Óleo W1V41 -Trimestral",
+    risk: "Exposição à Radiação Não Ionizante - Radiação Solar",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Protetor solar, óculos escuros",
+    controls: "Evitar exposição nos horários de pico",
+    legislation: "NR-15"
+},
+{
+    id: "I-39",
+    area: "Manutenção Mecânica", 
+    location: "Forno de Pozolana",
+    activity: "Insp Sist Inj Óleo W1V41 -Trimestral",
+    risk: "Exposição à Radiação Não Ionizante- Operações de Soldagem",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Óculos de proteção com filtro UV",
+    controls: "Área isolada, sinalização adequada",
+    legislation: "NR-15"
+},
+{
+    id: "I-40",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp Sist Inj Óleo W1V41 -Trimestral", 
+    risk: "Inalação de poeira mineral (contendo sílica livre cristalizada)",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Máscara PFF2, óculos de proteção",
+    controls: "Sistema de exaustão, umidificação do ambiente",
+    legislation: "NR-15"
+},
+{
+    id: "I-41",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp Sist Inj Óleo W1V41 -Trimestral",
+    risk: "Inalação de poeira metálica",
+    frequency: 4,
+    severity: 1, 
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Máscara PFF1",
+    controls: "Ventilação local exaustora",
+    legislation: "NR-15"
+},
+{
+    id: "I-42",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp Sist Inj Óleo W1V41 -Trimestral", 
+    risk: "Inalação de gases ácidos",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Máscara com filtro químico",
+    controls: "Monitoramento atmosférico, ventilação forçada",
+    legislation: "NR-15"
+},
+{
+    id: "I-43",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp Sist Inj Óleo W1V41 -Trimestral",
+    risk: "Inalação de fumos metálicos",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Máscara PFF2",
+    controls: "Ventilação local exaustora, monitoramento",
+    legislation: "NR-15"
+},
+{
+    id: "I-44",
+    area: "Manutenção Mecânica", 
+    location: "Forno de Pozolana",
+    activity: "Insp Sist Inj Óleo W1V41 -Trimestral",
+    risk: "Postura de pé por longos períodos",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Calçado de segurança com palmilha antifatiga",
+    controls: "Pausas ativas, rodízio de atividades",
+    legislation: "NR-17"
+},
+{
+    id: "I-45",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp Sist Inj Óleo W1V41 -Trimestral", 
+    risk: "Postura restrita de longa duração",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Nenhum específico",
+    controls: "Ginástica laboral, pausas programadas",
+    legislation: "NR-17"
+},
+{
+    id: "I-46",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp Sist Inj Óleo W1V41 -Trimestral",
+    risk: "Ataque de ser vivo com peçonha",
+    frequency: 4,
+    severity: 2, 
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Botas de segurança, luvas de couro",
+    controls: "Manutenção da área limpa, inspeção prévia",
+    legislation: "NR-31"
+},
+{
+    id: "I-47",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp Sist Inj Óleo W1V41 -Trimestral", 
+    risk: "Contato com Energia elétrica",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Luvas de borracha, botas isolantes",
+    controls: "Bloqueio e etiquetagem, treinamento específico",
+    legislation: "NR-10"
+},
+{
+    id: "I-48",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp Sist Inj Óleo W1V41 -Trimestral",
+    risk: "Contato com Material/Produto Inflamável/Combustível (serviços de soldagem e corte)",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Luva de raspa, óculos de proteção, avental",
+    controls: "Área isolada, extintores disponíveis, treinamento específico",
+    legislation: "NR-23"
+},
+{
+    id: "I-49",
+    area: "Manutenção Mecânica", 
+    location: "Forno de Pozolana",
+    activity: "Insp Sist Inj Óleo W1V41 -Trimestral",
+    risk: "Contato com Objeto/ material cortante",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Luvas de malha de aço",
+    controls: "Organização do local, treinamento",
+    legislation: "NR-12"
+},
+{
+    id: "I-50",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp Sist Inj Óleo W1V41 -Trimestral", 
+    risk: "Impacto por Objeto Projetado",
+    frequency: 4,
+    severity: 4,
+    score: 16,
+    riskLevel: "Médio",
+    ppe: "Óculos de proteção, capacete, protetor facial",
+    controls: "Sinalização de área, barreiras de proteção, isolamento da área",
+    legislation: "NR-18"
+},
+{
+    id: "I-51",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp Sist Inj Óleo W1V41 -Trimestral",
+    risk: "Queda de pessoa com diferença de nível - Trabalho em altura",
+    frequency: 4,
+    severity: 2, 
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Cinto de segurança tipo paraquedista, capacete",
+    controls: "Plataforma de trabalho, treinamento NR-35",
+    legislation: "NR-35"
+},
+{
+    id: "I-52",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Aplicador de Sacos - Semanal", 
+    risk: "Exposição à Ruído contínuo",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Protetor auricular",
+    controls: "Manutenção preventiva, enclausuramento acústico",
+    legislation: "NR-15"
+},
+{
+    id: "I-53",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Aplicador de Sacos - Semanal",
+    risk: "Exposição à Vibração de Corpo Inteiro (VCI)",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Calçado de segurança com amortecimento",
+    controls: "Limitação do tempo de exposição",
+    legislation: "NR-15"
+},
+{
+    id: "I-54",
+    area: "Manutenção Mecânica", 
+    location: "Ensacadeira",
+    activity: "Insp. Aplicador de Sacos - Semanal",
+    risk: "Exposição à Calor (Sobrecarga térmica)",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Vestimenta adequada",
+    controls: "Pausas em ambiente climatizado",
+    legislation: "NR-15"
+},
+{
+    id: "I-55",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Aplicador de Sacos - Semanal", 
+    risk: "Exposição à Radiação Não Ionizante - Radiação Solar",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Protetor solar",
+    controls: "Evitar exposição nos horários de pico",
+    legislation: "NR-15"
+},
+{
+    id: "I-56",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Aplicador de Sacos - Semanal",
+    risk: "Exposição à Radiação Não Ionizante- Operações de Soldagem",
+    frequency: 4,
+    severity: 1, 
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Óculos de proteção com filtro UV",
+    controls: "Área isolada",
+    legislation: "NR-15"
+},
+{
+    id: "I-57",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Aplicador de Sacos - Semanal", 
+    risk: "Inalação de poeira mineral (contendo sílica livre cristalizada)",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Máscara PFF2, óculos de proteção",
+    controls: "Sistema de exaustão, umidificação do ambiente, enclausuramento",
+    legislation: "NR-15"
+},
+{
+    id: "I-58",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Aplicador de Sacos - Semanal",
+    risk: "Inalação de poeira metálica",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Máscara PFF1",
+    controls: "Ventilação local exaustora",
+    legislation: "NR-15"
+},
+{
+    id: "I-59",
+    area: "Manutenção Mecânica", 
+    location: "Ensacadeira",
+    activity: "Insp. Aplicador de Sacos - Semanal",
+    risk: "Inalação de gases ácidos",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Máscara com filtro químico",
+    controls: "Monitoramento atmosférico",
+    legislation: "NR-15"
+},
+{
+    id: "I-60",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Aplicador de Sacos - Semanal", 
+    risk: "Inalação de fumos metálicos",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Máscara PFF2",
+    controls: "Ventilação local exaustora",
+    legislation: "NR-15"
+},
+{
+    id: "I-61",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Aplicador de Sacos - Semanal",
+    risk: "Postura de pé por longos períodos",
+    frequency: 4,
+    severity: 1, 
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Calçado de segurança com palmilha antifatiga",
+    controls: "Pausas ativas",
+    legislation: "NR-17"
+},
+{
+    id: "I-62",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Aplicador de Sacos - Semanal", 
+    risk: "Postura restrita de longa duração",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Nenhum específico",
+    controls: "Ginástica laboral",
+    legislation: "NR-17"
+},
+{
+    id: "I-63",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Aplicador de Sacos - Semanal",
+    risk: "Ataque de ser vivo com peçonha",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Botas de segurança, luvas de couro",
+    controls: "Manutenção da área limpa, inspeção prévia, controle de pragas",
+    legislation: "NR-31"
+},
+{
+    id: "I-64",
+    area: "Manutenção Mecânica", 
+    location: "Ensacadeira",
+    activity: "Insp. Aplicador de Sacos - Semanal",
+    risk: "Contato com Energia elétrica",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Luvas de borracha",
+    controls: "Bloqueio e etiquetagem",
+    legislation: "NR-10"
+},
+{
+    id: "I-65",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Aplicador de Sacos - Semanal", 
+    risk: "Contato com Material/Produto Inflamável/Combustível (serviços de soldagem e corte)",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Luva de raspa, óculos de proteção",
+    controls: "Área isolada, extintores disponíveis",
+    legislation: "NR-23"
+},
+{
+    id: "I-66",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Aplicador de Sacos - Semanal",
+    risk: "Contato com Objeto/ material cortante",
+    frequency: 4,
+    severity: 2, 
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Luvas de malha de aço",
+    controls: "Organização do local",
+    legislation: "NR-12"
+},
+{
+    id: "I-67",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Aplicador de Sacos - Semanal", 
+    risk: "Impacto por Objeto Projetado",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Óculos de proteção, capacete",
+    controls: "Sinalização de área",
+    legislation: "NR-18"
+},
+{
+    id: "I-68",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Aplicador de Sacos - Semanal",
+    risk: "Queda de pessoa com diferença de nível - Trabalho em altura",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Cinto de segurança",
+    controls: "Plataforma de trabalho",
+    legislation: "NR-35"
+},
+{
+    id: "I-188",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte", 
+    risk: "Exposição à Ruído contínuo",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Protetor auricular, óculos de proteção, luva de raspa",
+    controls: "Área delimitada, sinalização, treinamento específico, inspeção de equipamentos, PO-002110",
+    legislation: "NR-15, NR-23, PO-002110"
+},
+{
+    id: "I-189",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Exposição à Vibração de Corpo Inteiro (VCI)",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Calçado de segurança com amortecimento, luva antivibração",
+    controls: "Limitação do tempo de exposição, pausas programadas, treinamento, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-190",
+    area: "Manutenção Mecânica", 
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Exposição à Calor (Sobrecarga térmica)",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Vestimenta adequada, protetor solar, óculos de proteção",
+    controls: "Pausas em ambiente climatizado, hidratação constante, monitoramento térmico, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-191",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Exposição à Radiação Não Ionizante - Radiação Solar",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Protetor solar, óculos escuros, chapéu, vestimenta adequada",
+    controls: "Evitar exposição nos horários de pico, pausas em área coberta, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-192",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Exposição à Radiação Não Ionizante- Operações de Soldagem",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Óculos de proteção com filtro UV, máscara de solda, avental de couro",
+    controls: "Área isolada, sinalização adequada, cortinas de proteção, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-193",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Inalação de poeira mineral (contendo sílica livre cristalizada)",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Máscara PFF2, óculos de proteção, vestimenta adequada",
+    controls: "Sistema de exaustão, umidificação do ambiente, ventilação forçada, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-194",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Inalação de poeira metálica",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Máscara PFF2, óculos de proteção",
+    controls: "Ventilação local exaustora, sistema de aspiração, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-195",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Inalação de gases ácidos",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Máscara com filtro químico, óculos de proteção",
+    controls: "Monitoramento atmosférico, ventilação forçada, área ventilada, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-196",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Inalação de fumos metálicos",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Máscara PFF2, óculos de proteção",
+    controls: "Ventilação local exaustora, monitoramento, sistema de exaustão, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-197",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Postura de pé por longos períodos",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Calçado de segurança com palmilha antifatiga",
+    controls: "Pausas ativas, rodízio de atividades, assentos auxiliares, PO-002110",
+    legislation: "NR-17, PO-002110"
+},
+{
+    id: "I-198",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Postura restrita de longa duração",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Nenhum específico",
+    controls: "Ginástica laboral, pausas programadas, rodízio de funções, PO-002110",
+    legislation: "NR-17, PO-002110"
+},
+{
+    id: "I-199",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Ataque de ser vivo com peçonha",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Botas de segurança, luvas de couro, vestimenta adequada",
+    controls: "Manutenção da área limpa, inspeção prévia, controle de pragas, PO-002110",
+    legislation: "NR-31, PO-002110"
+},
+{
+    id: "I-200",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Contato com Energia elétrica",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Luvas de borracha, botas isolantes, capacete dielétrico",
+    controls: "Bloqueio e etiquetagem, treinamento específico, inspeção de equipamentos, PO-002110",
+    legislation: "NR-10, PO-002110"
+},
+{
+    id: "I-201",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Contato com Material/Produto Inflamável/Combustível (serviços de soldagem e corte)",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Luva de raspa, óculos de proteção, avental de couro, calçado de segurança",
+    controls: "Área isolada, extintores disponíveis, treinamento específico, inspeção de equipamentos, PO-002110",
+    legislation: "NR-23, PO-002110"
+},
+{
+    id: "I-202",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Contato com Objeto/ material cortante",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Luvas de malha de aço, óculos de proteção, vestimenta adequada",
+    controls: "Organização do local, treinamento, sinalização, PO-002110",
+    legislation: "NR-12, PO-002110"
+},
+{
+    id: "I-203",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Impacto por Objeto Projetado",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Óculos de proteção, capacete, protetor facial, vestimenta adequada",
+    controls: "Sinalização de área, barreiras de proteção, isolamento da área, PO-002110",
+    legislation: "NR-18, PO-002110"
+},
+{
+    id: "I-204",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Queda de pessoa com diferença de nível - Trabalho em altura",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Cinto de segurança tipo paraquedista, capacete, talabarte",
+    controls: "Plataforma de trabalho, treinamento NR-35, inspeção de equipamentos, PO-002110",
+    legislation: "NR-35, PO-002110"
+},
+{
+    id: "I-69",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Britador",
+    risk: "Exposição à Ruído contínuo",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Protetor auricular",
+    controls: "Manutenção preventiva de equipamentos",
+    legislation: "NR-15"
+},
+{
+    id: "I-70",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Britador",
+    risk: "Exposição à Vibração de Corpo Inteiro (VCI)",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Calçado de segurança com amortecimento",
+    controls: "Limitação do tempo de exposição",
+    legislation: "NR-15"
+},
+{
+    id: "I-71",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Britador",
+    risk: "Exposição à Calor (Sobrecarga térmica)",
+    frequency: 3,
+    severity: 3,
+    score: 9,
+    riskLevel: "Baixo",
+    ppe: "Vestimenta adequada, protetor solar",
+    controls: "Pausas em ambiente climatizado, hidratação",
+    legislation: "NR-15"
+},
+{
+    id: "I-72",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Britador",
+    risk: "Exposição à Radiação Não Ionizante - Radiação Solar",
+    frequency: 3,
+    severity: 2,
+    score: 6,
+    riskLevel: "Baixo",
+    ppe: "Protetor solar, óculos escuros",
+    controls: "Evitar exposição nos horários de pico",
+    legislation: "NR-15"
+},
+{
+    id: "I-73",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Britador",
+    risk: "Exposição à Radiação Não Ionizante- Operações de Soldagem",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Óculos de proteção com filtro UV",
+    controls: "Área isolada",
+    legislation: "NR-15"
+},
+{
+    id: "I-74",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Britador",
+    risk: "Inalação de poeira mineral (contendo sílica livre cristalizada)",
+    frequency: 3,
+    severity: 3,
+    score: 9,
+    riskLevel: "Baixo",
+    ppe: "Máscara PFF2, óculos de proteção",
+    controls: "Sistema de exaustão, umidificação do ambiente",
+    legislation: "NR-15"
+},
+{
+    id: "I-75",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Britador",
+    risk: "Inalação de poeira metálica",
+    frequency: 3,
+    severity: 3,
+    score: 9,
+    riskLevel: "Baixo",
+    ppe: "Máscara PFF1",
+    controls: "Ventilação local exaustora",
+    legislation: "NR-15"
+},
+{
+    id: "I-76",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Britador",
+    risk: "Inalação de gases ácidos",
+    frequency: 3,
+    severity: 3,
+    score: 9,
+    riskLevel: "Baixo",
+    ppe: "Máscara com filtro químico",
+    controls: "Monitoramento atmosférico",
+    legislation: "NR-15"
+},
+{
+    id: "I-77",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Britador",
+    risk: "Inalação de fumos metálicos",
+    frequency: 3,
+    severity: 3,
+    score: 9,
+    riskLevel: "Baixo",
+    ppe: "Máscara PFF2",
+    controls: "Ventilação local exaustora",
+    legislation: "NR-15"
+},
+{
+    id: "I-78",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Britador",
+    risk: "Postura de pé por longos períodos",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Calçado de segurança com palmilha antifatiga",
+    controls: "Pausas ativas",
+    legislation: "NR-17"
+},
+{
+    id: "I-79",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Britador",
+    risk: "Postura restrita de longa duração",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Nenhum específico",
+    controls: "Ginástica laboral",
+    legislation: "NR-17"
+},
+{
+    id: "I-80",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Britador",
+    risk: "Ataque de ser vivo com peçonha",
+    frequency: 3,
+    severity: 3,
+    score: 9,
+    riskLevel: "Baixo",
+    ppe: "Botas de segurança",
+    controls: "Manutenção da área limpa",
+    legislation: "NR-31"
+},
+{
+    id: "I-81",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Britador",
+    risk: "Contato com Energia elétrica",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Luvas de borracha",
+    controls: "Bloqueio e etiquetagem",
+    legislation: "NR-10"
+},
+{
+    id: "I-82",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Britador",
+    risk: "Contato com Material/Produto Inflamável/Combustível (serviços de soldagem e corte)",
+    frequency: 3,
+    severity: 3,
+    score: 9,
+    riskLevel: "Baixo",
+    ppe: "Luva de raspa, óculos de proteção",
+    controls: "Área isolada, extintores disponíveis",
+    legislation: "NR-23"
+},
+{
+    id: "I-83",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Britador",
+    risk: "Contato com Objeto/ material cortante",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Luvas de malha de aço",
+    controls: "Organização do local",
+    legislation: "NR-12"
+},
+{
+    id: "I-84",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Britador",
+    risk: "Impacto por Objeto Projetado",
+    frequency: 3,
+    severity: 3,
+    score: 9,
+    riskLevel: "Baixo",
+    ppe: "Óculos de proteção, capacete",
+    controls: "Sinalização de área",
+    legislation: "NR-18"
+},
+{
+    id: "I-85",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Britador",
+    risk: "Queda de pessoa com diferença de nível - Trabalho em altura",
+    frequency: 3,
+    severity: 3,
+    score: 9,
+    riskLevel: "Baixo",
+    ppe: "Cinto de segurança, capacete",
+    controls: "Plataforma de trabalho",
+    legislation: "NR-35"
+},
+{
+    id: "I-86",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Exposição à Ruído contínuo",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Protetor auricular",
+    controls: "Manutenção preventiva, enclausuramento acústico",
+    legislation: "NR-15"
+},
+{
+    id: "I-87",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Exposição à Vibração de Corpo Inteiro (VCI)",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Calçado de segurança com amortecimento",
+    controls: "Limitação do tempo de exposição",
+    legislation: "NR-15"
+},
+{
+    id: "I-88",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Exposição à Calor (Sobrecarga térmica)",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Vestimenta adequada",
+    controls: "Pausas em ambiente climatizado",
+    legislation: "NR-15"
+},
+{
+    id: "I-89",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Exposição à Radiação Não Ionizante - Radiação Solar",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Protetor solar",
+    controls: "Evitar exposição nos horários de pico",
+    legislation: "NR-15"
+},
+{
+    id: "I-90",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Exposição à Radiação Não Ionizante- Operações de Soldagem",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Óculos de proteção com filtro UV",
+    controls: "Área isolada",
+    legislation: "NR-15"
+},
+{
+    id: "I-91",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Inalação de poeira mineral (contendo sílica livre cristalizada)",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Máscara PFF2, óculos de proteção",
+    controls: "Sistema de exaustão, umidificação do ambiente",
+    legislation: "NR-15"
+},
+{
+    id: "I-92",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Inalação de poeira metálica",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Máscara PFF2",
+    controls: "Ventilação local exaustora",
+    legislation: "NR-15"
+},
+{
+    id: "I-93",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Inalação de gases ácidos",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Máscara com filtro químico",
+    controls: "Monitoramento atmosférico",
+    legislation: "NR-15"
+},
+{
+    id: "I-94",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Inalação de fumos metálicos",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Máscara PFF2",
+    controls: "Ventilação local exaustora",
+    legislation: "NR-15"
+},
+{
+    id: "I-95",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Postura de pé por longos períodos",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Calçado de segurança com palmilha antifatiga",
+    controls: "Pausas ativas",
+    legislation: "NR-17"
+},
+{
+    id: "I-96",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Postura restrita de longa duração",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Nenhum específico",
+    controls: "Ginástica laboral",
+    legislation: "NR-17"
+},
+{
+    id: "I-97",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Ataque de ser vivo com peçonha",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Botas de segurança, luvas de couro",
+    controls: "Manutenção da área limpa, inspeção prévia",
+    legislation: "NR-31"
+},
+{
+    id: "I-98",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Contato com Energia elétrica",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Luvas de borracha",
+    controls: "Bloqueio e etiquetagem",
+    legislation: "NR-10"
+},
+{
+    id: "I-99",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Contato com Material/Produto Inflamável/Combustível (serviços de soldagem e corte)",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Luva de raspa, óculos de proteção",
+    controls: "Área isolada, extintores disponíveis",
+    legislation: "NR-23"
+},
+{
+    id: "I-100",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Contato com Objeto/ material cortante",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Luvas de malha de aço",
+    controls: "Organização do local",
+    legislation: "NR-12"
+},
+{
+    id: "I-101",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Impacto por Objeto Projetado",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Óculos de proteção, capacete",
+    controls: "Sinalização de área, barreiras de proteção",
+    legislation: "NR-18"
+},
+{
+    id: "I-102",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Queda de pessoa com diferença de nível - Trabalho em altura",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Cinto de segurança",
+    controls: "Plataforma de trabalho",
+    legislation: "NR-35"
+},
+{
+    id: "I-103",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Exposição à Ruído contínuo",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Protetor auricular",
+    controls: "Manutenção preventiva, enclausuramento acústico",
+    legislation: "NR-15"
+},
+{
+    id: "I-104",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Exposição à Vibração de Corpo Inteiro (VCI)",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Calçado de segurança com amortecimento",
+    controls: "Limitação do tempo de exposição",
+    legislation: "NR-15"
+},
+{
+    id: "I-105",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Exposição à Calor (Sobrecarga térmica)",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Vestimenta adequada, protetor solar",
+    controls: "Pausas em ambiente climatizado, hidratação",
+    legislation: "NR-15"
+},
+{
+    id: "I-106",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Exposição à Radiação Não Ionizante - Radiação Solar",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Protetor solar",
+    controls: "Evitar exposição nos horários de pico",
+    legislation: "NR-15"
+},
+{
+    id: "I-107",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Exposição à Radiação Não Ionizante- Operações de Soldagem",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Óculos de proteção com filtro UV",
+    controls: "Área isolada",
+    legislation: "NR-15"
+},
+{
+    id: "I-108",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Inalação de poeira mineral (contendo sílica livre cristalizada)",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Máscara PFF2, óculos de proteção",
+    controls: "Sistema de exaustão, umidificação do ambiente",
+    legislation: "NR-15"
+},
+{
+    id: "I-109",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Inalação de poeira metálica",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Máscara PFF2",
+    controls: "Ventilação local exaustora",
+    legislation: "NR-15"
+},
+{
+    id: "I-110",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Inalação de gases ácidos",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Máscara com filtro químico",
+    controls: "Monitoramento atmosférico, ventilação",
+    legislation: "NR-15"
+},
+{
+    id: "I-111",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Inalação de fumos metálicos",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Máscara PFF2",
+    controls: "Ventilação local exaustora",
+    legislation: "NR-15"
+},
+{
+    id: "I-112",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Postura de pé por longos períodos",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Calçado de segurança com palmilha antifatiga",
+    controls: "Pausas ativas",
+    legislation: "NR-17"
+},
+{
+    id: "I-113",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Postura restrita de longa duração",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Nenhum específico",
+    controls: "Ginástica laboral",
+    legislation: "NR-17"
+},
+{
+    id: "I-114",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Ataque de ser vivo com peçonha",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Botas de segurança, luvas de couro",
+    controls: "Manutenção da área limpa, inspeção prévia",
+    legislation: "NR-31"
+},
+{
+    id: "I-115",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Contato com Energia elétrica",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Luvas de borracha",
+    controls: "Bloqueio e etiquetagem",
+    legislation: "NR-10"
+},
+{
+    id: "I-116",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Contato com Material/Produto Inflamável/Combustível (serviços de soldagem e corte)",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Luva de raspa, óculos de proteção",
+    controls: "Área isolada, extintores disponíveis",
+    legislation: "NR-23"
+},
+{
+    id: "I-117",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Contato com Objeto/ material cortante",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Luvas de malha de aço",
+    controls: "Organização do local",
+    legislation: "NR-12"
+},
+{
+    id: "I-118",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Impacto por Objeto Projetado",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Óculos de proteção, capacete",
+    controls: "Sinalização de área, barreiras de proteção",
+    legislation: "NR-18"
+},
+{
+    id: "I-119",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Queda de pessoa com diferença de nível - Trabalho em altura",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Cinto de segurança",
+    controls: "Plataforma de trabalho",
+    legislation: "NR-35"
+},
+{
+    id: "I-120",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Exposição à Ruído contínuo",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Protetor auricular",
+    controls: "Manutenção preventiva, enclausuramento acústico",
+    legislation: "NR-15"
+},
+{
+    id: "I-121",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Exposição à Vibração de Corpo Inteiro (VCI)",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Calçado de segurança com amortecimento",
+    controls: "Limitação do tempo de exposição",
+    legislation: "NR-15"
+},
+{
+    id: "I-122",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Exposição à Calor (Sobrecarga térmica)",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Vestimenta adequada",
+    controls: "Pausas em ambiente climatizado",
+    legislation: "NR-15"
+},
+{
+    id: "I-123",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Exposição à Radiação Não Ionizante - Radiação Solar",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Protetor solar",
+    controls: "Evitar exposição nos horários de pico",
+    legislation: "NR-15"
+},
+{
+    id: "I-124",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Exposição à Radiação Não Ionizante- Operações de Soldagem",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Óculos de proteção com filtro UV",
+    controls: "Área isolada",
+    legislation: "NR-15"
+},
+{
+    id: "I-125",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Inalação de poeira mineral (contendo sílica livre cristalizada)",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Máscara PFF2, óculos de proteção",
+    controls: "Sistema de exaustão, umidificação do ambiente",
+    legislation: "NR-15"
+},
+{
+    id: "I-126",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Inalação de poeira metálica",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Máscara PFF2",
+    controls: "Ventilação local exaustora",
+    legislation: "NR-15"
+},
+{
+    id: "I-127",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Inalação de gases ácidos",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Máscara com filtro químico",
+    controls: "Monitoramento atmosférico, ventilação",
+    legislation: "NR-15"
+},
+{
+    id: "I-128",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Inalação de fumos metálicos",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Máscara PFF2",
+    controls: "Ventilação local exaustora",
+    legislation: "NR-15"
+},
+{
+    id: "I-129",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Postura de pé por longos períodos",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Calçado de segurança com palmilha antifatiga",
+    controls: "Pausas ativas",
+    legislation: "NR-17"
+},
+{
+    id: "I-130",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Postura restrita de longa duração",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Nenhum específico",
+    controls: "Ginástica laboral",
+    legislation: "NR-17"
+},
+{
+    id: "I-131",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Ataque de ser vivo com peçonha",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Botas de segurança, luvas de couro",
+    controls: "Manutenção da área limpa, inspeção prévia",
+    legislation: "NR-31"
+},
+{
+    id: "I-132",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Contato com Energia elétrica",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Luvas de borracha",
+    controls: "Bloqueio e etiquetagem",
+    legislation: "NR-10"
+},
+{
+    id: "I-133",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Contato com Material/Produto Inflamável/Combustível (serviços de soldagem e corte)",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Luva de raspa, óculos de proteção",
+    controls: "Área isolada, extintores disponíveis",
+    legislation: "NR-23"
+},
+{
+    id: "I-134",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Contato com Objeto/ material cortante",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Luvas de malha de aço",
+    controls: "Organização do local",
+    legislation: "NR-12"
+},
+{
+    id: "I-135",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Impacto por Objeto Projetado",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Óculos de proteção, capacete",
+    controls: "Sinalização de área, barreiras de proteção",
+    legislation: "NR-18"
+},
+{
+    id: "I-136",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Queda de pessoa com diferença de nível - Trabalho em altura",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Cinto de segurança",
+    controls: "Plataforma de trabalho",
+    legislation: "NR-35"
+},
+{
+    id: "I-137",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Exposição à Ruído contínuo",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Protetor auricular",
+    controls: "Manutenção preventiva, enclausuramento acústico",
+    legislation: "NR-15"
+},
+{
+    id: "I-138",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Exposição à Vibração de Corpo Inteiro (VCI)",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Calçado de segurança com amortecimento",
+    controls: "Limitação do tempo de exposição",
+    legislation: "NR-15"
+},
+{
+    id: "I-139",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Exposição à Calor (Sobrecarga térmica)",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Vestimenta adequada, protetor solar",
+    controls: "Pausas em ambiente climatizado, hidratação",
+    legislation: "NR-15"
+},
+{
+    id: "I-140",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Exposição à Radiação Não Ionizante - Radiação Solar",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Protetor solar, óculos escuros",
+    controls: "Evitar exposição nos horários de pico",
+    legislation: "NR-15"
+},
+{
+    id: "I-141",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Exposição à Radiação Não Ionizante- Operações de Soldagem",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Óculos de proteção com filtro UV",
+    controls: "Área isolada",
+    legislation: "NR-15"
+},
+{
+    id: "I-142",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Inalação de poeira mineral (contendo sílica livre cristalizada)",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Máscara PFF2, óculos de proteção",
+    controls: "Sistema de exaustão, umidificação do ambiente",
+    legislation: "NR-15"
+},
+{
+    id: "I-143",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Inalação de poeira metálica",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Máscara PFF2",
+    controls: "Ventilação local exaustora",
+    legislation: "NR-15"
+},
+{
+    id: "I-144",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Inalação de gases ácidos",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Máscara com filtro químico",
+    controls: "Monitoramento atmosférico, ventilação",
+    legislation: "NR-15"
+},
+{
+    id: "I-145",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Inalação de fumos metálicos",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Máscara PFF2",
+    controls: "Ventilação local exaustora",
+    legislation: "NR-15"
+},
+{
+    id: "I-146",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Postura de pé por longos períodos",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Calçado de segurança com palmilha antifatiga",
+    controls: "Pausas ativas",
+    legislation: "NR-17"
+},
+{
+    id: "I-147",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Postura restrita de longa duração",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Nenhum específico",
+    controls: "Ginástica laboral",
+    legislation: "NR-17"
+},
+{
+    id: "I-148",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Ataque de ser vivo com peçonha",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Botas de segurança, luvas de couro",
+    controls: "Manutenção da área limpa, inspeção prévia",
+    legislation: "NR-31"
+},
+{
+    id: "I-149",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Contato com Energia elétrica",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Luvas de borracha",
+    controls: "Bloqueio e etiquetagem",
+    legislation: "NR-10"
+},
+{
+    id: "I-150",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Contato com Material/Produto Inflamável/Combustível (serviços de soldagem e corte)",
+    frequency: 4,
+    severity: 3,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Luva de raspa, óculos de proteção",
+    controls: "Área isolada, extintores disponíveis",
+    legislation: "NR-23"
+},
+{
+    id: "I-151",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Contato com Objeto/ material cortante",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Luvas de malha de aço",
+    controls: "Organização do local",
+    legislation: "NR-12"
+},
+{
+    id: "I-152",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Impacto por Objeto Projetado",
+    frequency: 4,
+    severity: 2,
+    score: 8,
+    riskLevel: "Baixo",
+    ppe: "Óculos de proteção, capacete",
+    controls: "Sinalização de área",
+    legislation: "NR-18"
+},
+{
+    id: "I-153",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Insp. Mancal Eixo Acionam",
+    risk: "Queda de pessoa com diferença de nível - Trabalho em altura",
+    frequency: 4,
+    severity: 1,
+    score: 4,
+    riskLevel: "Baixo",
+    ppe: "Cinto de segurança",
+    controls: "Plataforma de trabalho",
+    legislation: "NR-35"
+},
+{
+    id: "I-154",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Equip Eletro Portateis - Mensal",
+    risk: "Exposição à Ruído contínuo",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Protetor auricular",
+    controls: "Manutenção preventiva de equipamentos",
+    legislation: "NR-15"
+},
+{
+    id: "I-155",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Equip Eletro Portateis - Mensal",
+    risk: "Exposição à Vibração de Corpo Inteiro (VCI)",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Calçado de segurança com amortecimento",
+    controls: "Limitação do tempo de exposição",
+    legislation: "NR-15"
+},
+{
+    id: "I-156",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Equip Eletro Portateis - Mensal",
+    risk: "Exposição à Calor (Sobrecarga térmica)",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Vestimenta adequada",
+    controls: "Pausas em ambiente climatizado",
+    legislation: "NR-15"
+},
+{
+    id: "I-157",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Equip Eletro Portateis - Mensal",
+    risk: "Exposição à Radiação Não Ionizante - Radiação Solar",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Protetor solar",
+    controls: "Evitar exposição nos horários de pico",
+    legislation: "NR-15"
+},
+{
+    id: "I-158",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Equip Eletro Portateis - Mensal",
+    risk: "Exposição à Radiação Não Ionizante- Operações de Soldagem",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Óculos de proteção com filtro UV",
+    controls: "Área isolada",
+    legislation: "NR-15"
+},
+{
+    id: "I-159",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Equip Eletro Portateis - Mensal",
+    risk: "Inalação de poeira mineral (contendo sílica livre cristalizada)",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Máscara PFF2",
+    controls: "Ventilação local exaustora",
+    legislation: "NR-15"
+},
+{
+    id: "I-160",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Equip Eletro Portateis - Mensal",
+    risk: "Inalação de poeira metálica",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Máscara PFF1",
+    controls: "Ventilação local exaustora",
+    legislation: "NR-15"
+},
+{
+    id: "I-161",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Equip Eletro Portateis - Mensal",
+    risk: "Inalação de gases ácidos",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Máscara com filtro químico",
+    controls: "Monitoramento atmosférico",
+    legislation: "NR-15"
+},
+{
+    id: "I-162",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Equip Eletro Portateis - Mensal",
+    risk: "Inalação de fumos metálicos",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Máscara PFF2",
+    controls: "Ventilação local exaustora",
+    legislation: "NR-15"
+},
+{
+    id: "I-163",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Equip Eletro Portateis - Mensal",
+    risk: "Postura de pé por longos períodos",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Calçado de segurança com palmilha antifatiga",
+    controls: "Pausas ativas",
+    legislation: "NR-17"
+},
+{
+    id: "I-164",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Equip Eletro Portateis - Mensal",
+    risk: "Postura restrita de longa duração",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Nenhum específico",
+    controls: "Ginástica laboral",
+    legislation: "NR-17"
+},
+{
+    id: "I-165",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Equip Eletro Portateis - Mensal",
+    risk: "Ataque de ser vivo com peçonha",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Botas de segurança",
+    controls: "Manutenção da área limpa",
+    legislation: "NR-31"
+},
+{
+    id: "I-166",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Equip Eletro Portateis - Mensal",
+    risk: "Contato com Energia elétrica",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Luvas de borracha",
+    controls: "Bloqueio e etiquetagem",
+    legislation: "NR-10"
+},
+{
+    id: "I-167",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Equip Eletro Portateis - Mensal",
+    risk: "Contato com Material/Produto Inflamável/Combustível (serviços de soldagem e corte)",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Luva de raspa, óculos de proteção",
+    controls: "Área isolada, extintores disponíveis",
+    legislation: "NR-23"
+},
+{
+    id: "I-168",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Equip Eletro Portateis - Mensal",
+    risk: "Contato com Objeto/ material cortante",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Luvas de malha de aço",
+    controls: "Organização do local",
+    legislation: "NR-12"
+},
+{
+    id: "I-169",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Equip Eletro Portateis - Mensal",
+    risk: "Impacto por Objeto Projetado",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Óculos de proteção",
+    controls: "Sinalização de área",
+    legislation: "NR-18"
+},
+{
+    id: "I-170",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Equip Eletro Portateis - Mensal",
+    risk: "Queda de pessoa com diferença de nível - Trabalho em altura",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Cinto de segurança",
+    controls: "Plataforma de trabalho",
+    legislation: "NR-35"
+},
+{
+    id: "I-171",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Filtro Mangas Despoeiramento",
+    risk: "Exposição à Ruído contínuo",
+    frequency: 3,
+    severity: 2,
+    score: 6,
+    riskLevel: "Baixo",
+    ppe: "Protetor auricular",
+    controls: "Manutenção preventiva de equipamentos",
+    legislation: "NR-15"
+},
+{
+    id: "I-172",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Filtro Mangas Despoeiramento",
+    risk: "Exposição à Vibração de Corpo Inteiro (VCI)",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Calçado de segurança com amortecimento",
+    controls: "Limitação do tempo de exposição",
+    legislation: "NR-15"
+},
+{
+    id: "I-173",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Filtro Mangas Despoeiramento",
+    risk: "Exposição à Calor (Sobrecarga térmica)",
+    frequency: 3,
+    severity: 3,
+    score: 9,
+    riskLevel: "Baixo",
+    ppe: "Vestimenta adequada, protetor solar",
+    controls: "Pausas em ambiente climatizado, hidratação",
+    legislation: "NR-15"
+},
+{
+    id: "I-174",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Filtro Mangas Despoeiramento",
+    risk: "Exposição à Radiação Não Ionizante - Radiação Solar",
+    frequency: 3,
+    severity: 3,
+    score: 9,
+    riskLevel: "Baixo",
+    ppe: "Protetor solar, óculos escuros",
+    controls: "Evitar exposição nos horários de pico",
+    legislation: "NR-15"
+},
+{
+    id: "I-175",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Filtro Mangas Despoeiramento",
+    risk: "Exposição à Radiação Não Ionizante- Operações de Soldagem",
+    frequency: 3,
+    severity: 3,
+    score: 9,
+    riskLevel: "Baixo",
+    ppe: "Óculos de proteção com filtro UV",
+    controls: "Área isolada",
+    legislation: "NR-15"
+},
+{
+    id: "I-176",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Filtro Mangas Despoeiramento",
+    risk: "Inalação de poeira mineral (contendo sílica livre cristalizada)",
+    frequency: 3,
+    severity: 3,
+    score: 9,
+    riskLevel: "Baixo",
+    ppe: "Máscara PFF2, óculos de proteção",
+    controls: "Sistema de exaustão, umidificação do ambiente",
+    legislation: "NR-15"
+},
+{
+    id: "I-177",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Filtro Mangas Despoeiramento",
+    risk: "Inalação de poeira metálica",
+    frequency: 3,
+    severity: 3,
+    score: 9,
+    riskLevel: "Baixo",
+    ppe: "Máscara PFF2",
+    controls: "Ventilação local exaustora",
+    legislation: "NR-15"
+},
+{
+    id: "I-178",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Filtro Mangas Despoeiramento",
+    risk: "Inalação de gases ácidos",
+    frequency: 3,
+    severity: 4,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Máscara com filtro químico",
+    controls: "Monitoramento atmosférico, ventilação forçada",
+    legislation: "NR-15"
+},
+{
+    id: "I-179",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Filtro Mangas Despoeiramento",
+    risk: "Inalação de fumos metálicos",
+    frequency: 3,
+    severity: 4,
+    score: 12,
+    riskLevel: "Médio",
+    ppe: "Máscara PFF2",
+    controls: "Ventilação local exaustora, monitoramento",
+    legislation: "NR-15"
+},
+{
+    id: "I-180",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Filtro Mangas Despoeiramento",
+    risk: "Postura de pé por longos períodos",
+    frequency: 3,
+    severity: 2,
+    score: 6,
+    riskLevel: "Baixo",
+    ppe: "Calçado de segurança com palmilha antifatiga",
+    controls: "Pausas ativas",
+    legislation: "NR-17"
+},
+{
+    id: "I-181",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Filtro Mangas Despoeiramento",
+    risk: "Postura restrita de longa duração",
+    frequency: 3,
+    severity: 2,
+    score: 6,
+    riskLevel: "Baixo",
+    ppe: "Nenhum específico",
+    controls: "Ginástica laboral",
+    legislation: "NR-17"
+},
+{
+    id: "I-182",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Filtro Mangas Despoeiramento",
+    risk: "Ataque de ser vivo com peçonha",
+    frequency: 3,
+    severity: 3,
+    score: 9,
+    riskLevel: "Baixo",
+    ppe: "Botas de segurança",
+    controls: "Manutenção da área limpa",
+    legislation: "NR-31"
+},
+{
+    id: "I-183",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Filtro Mangas Despoeiramento",
+    risk: "Contato com Energia elétrica",
+    frequency: 3,
+    severity: 1,
+    score: 3,
+    riskLevel: "Baixo",
+    ppe: "Luvas de borracha",
+    controls: "Bloqueio e etiquetagem",
+    legislation: "NR-10"
+},
+{
+    id: "I-184",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Filtro Mangas Despoeiramento",
+    risk: "Contato com Material/Produto Inflamável/Combustível (serviços de soldagem e corte)",
+    frequency: 3,
+    severity: 3,
+    score: 9,
+    riskLevel: "Baixo",
+    ppe: "Luva de raspa, óculos de proteção",
+    controls: "Área isolada, extintores disponíveis",
+    legislation: "NR-23"
+},
+{
+    id: "I-185",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Filtro Mangas Despoeiramento",
+    risk: "Contato com Objeto/ material cortante",
+    frequency: 3,
+    severity: 2,
+    score: 6,
+    riskLevel: "Baixo",
+    ppe: "Luvas de malha de aço",
+    controls: "Organização do local",
+    legislation: "NR-12"
+},
+{
+    id: "I-186",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Filtro Mangas Despoeiramento",
+    risk: "Impacto por Objeto Projetado",
+    frequency: 3,
+    severity: 3,
+    score: 9,
+    riskLevel: "Baixo",
+    ppe: "Óculos de proteção, capacete",
+    controls: "Sinalização de área",
+    legislation: "NR-18"
+},
+{
+    id: "I-187",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Filtro Mangas Despoeiramento",
+    risk: "Queda de pessoa com diferença de nível - Trabalho em altura",
+    frequency: 3,
+    severity: 3,
+    score: 9,
+    riskLevel: "Baixo",
+    ppe: "Cinto de segurança",
+    controls: "Plataforma de trabalho",
+    legislation: "NR-35"
+},
+{
+    id: "I-273",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Filtros Mangas Processo",
+    risk: "Exposição à Ruído contínuo",
+    frequency: 3,
+    severity: 3,
+    score: 9,
+    riskLevel: "Baixo",
+    ppe: "Protetor auricular",
+    controls: "Manutenção preventiva de equipamentos",
+    legislation: "NR-15"
+},
+{
+    id: "I-274",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "InspRot Filtros Mangas Processo",
+    risk: "Exposição à Vibração de Corpo Inteiro (VCI)",
+    frequency: 3,
+    severity: 2,
+    score: 6,
+    riskLevel: "Baixo",
+    ppe: "Calçado de segurança com amortecimento",
+    controls: "Limitação do tempo de exposição",
+    legislation: "NR-15"
+},
+{
+    id: "I-191",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Exposição à Radiação Não Ionizante - Radiação Solar",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Protetor solar, óculos escuros, chapéu, vestimenta adequada",
+    controls: "Evitar exposição nos horários de pico, pausas em área coberta, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-192",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Exposição à Radiação Não Ionizante- Operações de Soldagem",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Óculos de proteção com filtro UV, máscara de solda, avental de couro",
+    controls: "Área isolada, sinalização adequada, cortinas de proteção, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-193",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Inalação de poeira mineral (contendo sílica livre cristalizada)",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Máscara PFF2, óculos de proteção, vestimenta adequada",
+    controls: "Sistema de exaustão, umidificação do ambiente, ventilação forçada, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-194",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Inalação de poeira metálica",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Máscara PFF2, óculos de proteção",
+    controls: "Ventilação local exaustora, sistema de aspiração, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-195",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Inalação de gases ácidos",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Máscara com filtro químico, óculos de proteção",
+    controls: "Monitoramento atmosférico, ventilação forçada, área ventilada, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-196",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Inalação de fumos metálicos",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Máscara PFF2, óculos de proteção",
+    controls: "Ventilação local exaustora, monitoramento, sistema de exaustão, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-197",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Postura de pé por longos períodos",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Calçado de segurança com palmilha antifatiga",
+    controls: "Pausas ativas, rodízio de atividades, assentos auxiliares, PO-002110",
+    legislation: "NR-17, PO-002110"
+},
+{
+    id: "I-198",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Postura restrita de longa duração",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Nenhum específico",
+    controls: "Ginástica laboral, pausas programadas, rodízio de funções, PO-002110",
+    legislation: "NR-17, PO-002110"
+},
+{
+    id: "I-199",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Ataque de ser vivo com peçonha",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Botas de segurança, luvas de couro, vestimenta adequada",
+    controls: "Manutenção da área limpa, inspeção prévia, controle de pragas, PO-002110",
+    legislation: "NR-31, PO-002110"
+},
+{
+    id: "I-200",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Contato com Energia elétrica",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Luvas de borracha, botas isolantes, capacete dielétrico",
+    controls: "Bloqueio e etiquetagem, treinamento específico, inspeção de equipamentos, PO-002110",
+    legislation: "NR-10, PO-002110"
+},
+{
+    id: "I-201",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Contato com Material/Produto Inflamável/Combustível (serviços de soldagem e corte)",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Luva de raspa, óculos de proteção, avental de couro, calçado de segurança",
+    controls: "Área isolada, extintores disponíveis, treinamento específico, inspeção de equipamentos, PO-002110",
+    legislation: "NR-23, PO-002110"
+},
+{
+    id: "I-202",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Contato com Objeto/ material cortante",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Luvas de malha de aço, óculos de proteção, vestimenta adequada",
+    controls: "Organização do local, treinamento, sinalização, PO-002110",
+    legislation: "NR-12, PO-002110"
+},
+{
+    id: "I-203",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Impacto por Objeto Projetado",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Óculos de proteção, capacete, protetor facial, vestimenta adequada",
+    controls: "Sinalização de área, barreiras de proteção, isolamento da área, PO-002110",
+    legislation: "NR-18, PO-002110"
+},
+{
+    id: "I-204",
+    area: "Manutenção Mecânica",
+    location: "Ensacadeira",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Queda de pessoa com diferença de nível - Trabalho em altura",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Cinto de segurança tipo paraquedista, capacete, talabarte",
+    controls: "Plataforma de trabalho, treinamento NR-35, inspeção de equipamentos, PO-002110",
+    legislation: "NR-35, PO-002110"
+},
+{
+    id: "I-205",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Exposição à Ruído contínuo",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Protetor auricular, óculos de proteção, luva de raspa",
+    controls: "Área delimitada, sinalização, treinamento específico, inspeção de equipamentos, PO-002110",
+    legislation: "NR-15, NR-23, PO-002110"
+},
+{
+    id: "I-206",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Exposição à Vibração de Corpo Inteiro (VCI)",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Calçado de segurança com amortecimento, luva antivibração",
+    controls: "Limitação do tempo de exposição, pausas programadas, treinamento, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-207",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Exposição à Calor (Sobrecarga térmica)",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Vestimenta adequada, protetor solar, óculos de proteção",
+    controls: "Pausas em ambiente climatizado, hidratação constante, monitoramento térmico, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-208",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Exposição à Radiação Não Ionizante - Radiação Solar",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Protetor solar, óculos escuros, chapéu, vestimenta adequada",
+    controls: "Evitar exposição nos horários de pico, pausas em área coberta, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-209",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Exposição à Radiação Não Ionizante- Operações de Soldagem",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Óculos de proteção com filtro UV, máscara de solda, avental de couro",
+    controls: "Área isolada, sinalização adequada, cortinas de proteção, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-210",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Inalação de poeira mineral (contendo sílica livre cristalizada)",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Máscara PFF2, óculos de proteção, vestimenta adequada",
+    controls: "Sistema de exaustão, umidificação do ambiente, ventilação forçada, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-211",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Inalação de poeira metálica",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Máscara PFF2, óculos de proteção",
+    controls: "Ventilação local exaustora, sistema de aspiração, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-212",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Inalação de gases ácidos",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Máscara com filtro químico, óculos de proteção",
+    controls: "Monitoramento atmosférico, ventilação forçada, área ventilada, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-213",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Inalação de fumos metálicos",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Máscara PFF2, óculos de proteção",
+    controls: "Ventilação local exaustora, monitoramento, sistema de exaustão, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-214",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Postura de pé por longos períodos",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Calçado de segurança com palmilha antifatiga",
+    controls: "Pausas ativas, rodízio de atividades, assentos auxiliares, PO-002110",
+    legislation: "NR-17, PO-002110"
+},
+{
+    id: "I-215",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Postura restrita de longa duração",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Nenhum específico",
+    controls: "Ginástica laboral, pausas programadas, rodízio de funções, PO-002110",
+    legislation: "NR-17, PO-002110"
+},
+{
+    id: "I-216",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Ataque de ser vivo com peçonha",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Botas de segurança, luvas de couro, vestimenta adequada",
+    controls: "Manutenção da área limpa, inspeção prévia, controle de pragas, PO-002110",
+    legislation: "NR-31, PO-002110"
+},
+{
+    id: "I-217",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Contato com Energia elétrica",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Luvas de borracha, botas isolantes, capacete dielétrico",
+    controls: "Bloqueio e etiquetagem, treinamento específico, inspeção de equipamentos, PO-002110",
+    legislation: "NR-10, PO-002110"
+},
+{
+    id: "I-218",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Contato com Material/Produto Inflamável/Combustível (serviços de soldagem e corte)",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Luva de raspa, óculos de proteção, avental de couro, calçado de segurança",
+    controls: "Área isolada, extintores disponíveis, treinamento específico, inspeção de equipamentos, PO-002110",
+    legislation: "NR-23, PO-002110"
+},
+{
+    id: "I-219",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Contato com Objeto/ material cortante",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Luvas de malha de aço, óculos de proteção, vestimenta adequada",
+    controls: "Organização do local, treinamento, sinalização, PO-002110",
+    legislation: "NR-12, PO-002110"
+},
+{
+    id: "I-220",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Impacto por Objeto Projetado",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Óculos de proteção, capacete, protetor facial, vestimenta adequada",
+    controls: "Sinalização de área, barreiras de proteção, isolamento da área, PO-002110",
+    legislation: "NR-18, PO-002110"
+},
+{
+    id: "I-221",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Cimento",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Queda de pessoa com diferença de nível - Trabalho em altura",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Cinto de segurança tipo paraquedista, capacete, talabarte",
+    controls: "Plataforma de trabalho, treinamento NR-35, inspeção de equipamentos, PO-002110",
+    legislation: "NR-35, PO-002110"
+},
+{
+    id: "I-222",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Exposição à Ruído contínuo",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Protetor auricular, óculos de proteção, luva de raspa",
+    controls: "Área delimitada, sinalização, treinamento específico, inspeção de equipamentos, PO-002110",
+    legislation: "NR-15, NR-23, PO-002110"
+},
+{
+    id: "I-223",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Exposição à Vibração de Corpo Inteiro (VCI)",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Calçado de segurança com amortecimento, luva antivibração",
+    controls: "Limitação do tempo de exposição, pausas programadas, treinamento, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-224",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Exposição à Calor (Sobrecarga térmica)",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Vestimenta adequada, protetor solar, óculos de proteção",
+    controls: "Pausas em ambiente climatizado, hidratação constante, monitoramento térmico, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-225",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Exposição à Radiação Não Ionizante - Radiação Solar",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Protetor solar, óculos escuros, chapéu, vestimenta adequada",
+    controls: "Evitar exposição nos horários de pico, pausas em área coberta, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-226",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Exposição à Radiação Não Ionizante- Operações de Soldagem",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Óculos de proteção com filtro UV, máscara de solda, avental de couro",
+    controls: "Área isolada, sinalização adequada, cortinas de proteção, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-227",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Inalação de poeira mineral (contendo sílica livre cristalizada)",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Máscara PFF2, óculos de proteção, vestimenta adequada",
+    controls: "Sistema de exaustão, umidificação do ambiente, ventilação forçada, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-228",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Inalação de poeira metálica",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Máscara PFF2, óculos de proteção",
+    controls: "Ventilação local exaustora, sistema de aspiração, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-229",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Inalação de gases ácidos",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Máscara com filtro químico, óculos de proteção",
+    controls: "Monitoramento atmosférico, ventilação forçada, área ventilada, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-230",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Inalação de fumos metálicos",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Máscara PFF2, óculos de proteção",
+    controls: "Ventilação local exaustora, monitoramento, sistema de exaustão, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-231",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Postura de pé por longos períodos",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Calçado de segurança com palmilha antifatiga",
+    controls: "Pausas ativas, rodízio de atividades, assentos auxiliares, PO-002110",
+    legislation: "NR-17, PO-002110"
+},
+{
+    id: "I-232",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Postura restrita de longa duração",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Nenhum específico",
+    controls: "Ginástica laboral, pausas programadas, rodízio de funções, PO-002110",
+    legislation: "NR-17, PO-002110"
+},
+{
+    id: "I-233",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Ataque de ser vivo com peçonha",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Botas de segurança, luvas de couro, vestimenta adequada",
+    controls: "Manutenção da área limpa, inspeção prévia, controle de pragas, PO-002110",
+    legislation: "NR-31, PO-002110"
+},
+{
+    id: "I-234",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Contato com Energia elétrica",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Luvas de borracha, botas isolantes, capacete dielétrico",
+    controls: "Bloqueio e etiquetagem, treinamento específico, inspeção de equipamentos, PO-002110",
+    legislation: "NR-10, PO-002110"
+},
+{
+    id: "I-235",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Contato com Material/Produto Inflamável/Combustível (serviços de soldagem e corte)",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Luva de raspa, óculos de proteção, avental de couro, calçado de segurança",
+    controls: "Área isolada, extintores disponíveis, treinamento específico, inspeção de equipamentos, PO-002110",
+    legislation: "NR-23, PO-002110"
+},
+{
+    id: "I-236",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Contato com Objeto/ material cortante",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Luvas de malha de aço, óculos de proteção, vestimenta adequada",
+    controls: "Organização do local, treinamento, sinalização, PO-002110",
+    legislation: "NR-12, PO-002110"
+},
+{
+    id: "I-237",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Impacto por Objeto Projetado",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Óculos de proteção, capacete, protetor facial, vestimenta adequada",
+    controls: "Sinalização de área, barreiras de proteção, isolamento da área, PO-002110",
+    legislation: "NR-18, PO-002110"
+},
+{
+    id: "I-238",
+    area: "Manutenção Mecânica",
+    location: "Moagem de Coque",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Queda de pessoa com diferença de nível - Trabalho em altura",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Cinto de segurança tipo paraquedista, capacete, talabarte",
+    controls: "Plataforma de trabalho, treinamento NR-35, inspeção de equipamentos, PO-002110",
+    legislation: "NR-35, PO-002110"
+},
+{
+    id: "I-239",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Exposição à Ruído contínuo",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Protetor auricular, óculos de proteção, luva de raspa",
+    controls: "Área delimitada, sinalização, treinamento específico, inspeção de equipamentos, PO-002110",
+    legislation: "NR-15, NR-23, PO-002110"
+},
+{
+    id: "I-240",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Exposição à Vibração de Corpo Inteiro (VCI)",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Calçado de segurança com amortecimento, luva antivibração",
+    controls: "Limitação do tempo de exposição, pausas programadas, treinamento, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-241",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Exposição à Calor (Sobrecarga térmica)",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Vestimenta adequada, protetor solar, óculos de proteção",
+    controls: "Pausas em ambiente climatizado, hidratação constante, monitoramento térmico, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-242",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Exposição à Radiação Não Ionizante - Radiação Solar",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Protetor solar, óculos escuros, chapéu, vestimenta adequada",
+    controls: "Evitar exposição nos horários de pico, pausas em área coberta, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-243",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Exposição à Radiação Não Ionizante- Operações de Soldagem",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Óculos de proteção com filtro UV, máscara de solda, avental de couro",
+    controls: "Área isolada, sinalização adequada, cortinas de proteção, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-244",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Inalação de poeira mineral (contendo sílica livre cristalizada)",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Máscara PFF2, óculos de proteção, vestimenta adequada",
+    controls: "Sistema de exaustão, umidificação do ambiente, ventilação forçada, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-245",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Inalação de poeira metálica",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Máscara PFF2, óculos de proteção",
+    controls: "Ventilação local exaustora, sistema de aspiração, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-246",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Inalação de gases ácidos",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Máscara com filtro químico, óculos de proteção",
+    controls: "Monitoramento atmosférico, ventilação forçada, área ventilada, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-247",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Inalação de fumos metálicos",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Máscara PFF2, óculos de proteção",
+    controls: "Ventilação local exaustora, monitoramento, sistema de exaustão, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-248",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Postura de pé por longos períodos",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Calçado de segurança com palmilha antifatiga",
+    controls: "Pausas ativas, rodízio de atividades, assentos auxiliares, PO-002110",
+    legislation: "NR-17, PO-002110"
+},
+{
+    id: "I-249",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Postura restrita de longa duração",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Nenhum específico",
+    controls: "Ginástica laboral, pausas programadas, rodízio de funções, PO-002110",
+    legislation: "NR-17, PO-002110"
+},
+{
+    id: "I-250",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Ataque de ser vivo com peçonha",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Botas de segurança, luvas de couro, vestimenta adequada",
+    controls: "Manutenção da área limpa, inspeção prévia, controle de pragas, PO-002110",
+    legislation: "NR-31, PO-002110"
+},
+{
+    id: "I-251",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Contato com Energia elétrica",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Luvas de borracha, botas isolantes, capacete dielétrico",
+    controls: "Bloqueio e etiquetagem, treinamento específico, inspeção de equipamentos, PO-002110",
+    legislation: "NR-10, PO-002110"
+},
+{
+    id: "I-252",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Contato com Material/Produto Inflamável/Combustível (serviços de soldagem e corte)",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Luva de raspa, óculos de proteção, avental de couro, calçado de segurança",
+    controls: "Área isolada, extintores disponíveis, treinamento específico, inspeção de equipamentos, PO-002110",
+    legislation: "NR-23, PO-002110"
+},
+{
+    id: "I-253",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Contato com Objeto/ material cortante",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Luvas de malha de aço, óculos de proteção, vestimenta adequada",
+    controls: "Organização do local, treinamento, sinalização, PO-002110",
+    legislation: "NR-12, PO-002110"
+},
+{
+    id: "I-254",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Impacto por Objeto Projetado",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Óculos de proteção, capacete, protetor facial, vestimenta adequada",
+    controls: "Sinalização de área, barreiras de proteção, isolamento da área, PO-002110",
+    legislation: "NR-18, PO-002110"
+},
+{
+    id: "I-255",
+    area: "Manutenção Mecânica",
+    location: "Forno de Pozolana",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Queda de pessoa com diferença de nível - Trabalho em altura",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Cinto de segurança tipo paraquedista, capacete, talabarte",
+    controls: "Plataforma de trabalho, treinamento NR-35, inspeção de equipamentos, PO-002110",
+    legislation: "NR-35, PO-002110"
+},
+{
+    id: "I-256",
+    area: "Manutenção Mecânica",
+    location: "Tombador",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Exposição à Ruído contínuo",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Protetor auricular, óculos de proteção, luva de raspa",
+    controls: "Área delimitada, sinalização, treinamento específico, inspeção de equipamentos, PO-002110",
+    legislation: "NR-15, NR-23, PO-002110"
+},
+{
+    id: "I-257",
+    area: "Manutenção Mecânica",
+    location: "Tombador",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Exposição à Vibração de Corpo Inteiro (VCI)",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Calçado de segurança com amortecimento, luva antivibração",
+    controls: "Limitação do tempo de exposição, pausas programadas, treinamento, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-258",
+    area: "Manutenção Mecânica",
+    location: "Tombador",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Exposição à Calor (Sobrecarga térmica)",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Vestimenta adequada, protetor solar, óculos de proteção",
+    controls: "Pausas em ambiente climatizado, hidratação constante, monitoramento térmico, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-259",
+    area: "Manutenção Mecânica",
+    location: "Tombador",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Exposição à Radiação Não Ionizante - Radiação Solar",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Protetor solar, óculos escuros, chapéu, vestimenta adequada",
+    controls: "Evitar exposição nos horários de pico, pausas em área coberta, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-260",
+    area: "Manutenção Mecânica",
+    location: "Tombador",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Exposição à Radiação Não Ionizante- Operações de Soldagem",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Óculos de proteção com filtro UV, máscara de solda, avental de couro",
+    controls: "Área isolada, sinalização adequada, cortinas de proteção, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-261",
+    area: "Manutenção Mecânica",
+    location: "Tombador",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Inalação de poeira mineral (contendo sílica livre cristalizada)",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Máscara PFF2, óculos de proteção, vestimenta adequada",
+    controls: "Sistema de exaustão, umidificação do ambiente, ventilação forçada, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-262",
+    area: "Manutenção Mecânica",
+    location: "Tombador",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Inalação de poeira metálica",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Máscara PFF2, óculos de proteção",
+    controls: "Ventilação local exaustora, sistema de aspiração, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-263",
+    area: "Manutenção Mecânica",
+    location: "Tombador",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Inalação de gases ácidos",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Máscara com filtro químico, óculos de proteção",
+    controls: "Monitoramento atmosférico, ventilação forçada, área ventilada, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-264",
+    area: "Manutenção Mecânica",
+    location: "Tombador",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Inalação de fumos metálicos",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Máscara PFF2, óculos de proteção",
+    controls: "Ventilação local exaustora, monitoramento, sistema de exaustão, PO-002110",
+    legislation: "NR-15, PO-002110"
+},
+{
+    id: "I-265",
+    area: "Manutenção Mecânica",
+    location: "Tombador",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Postura de pé por longos períodos",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Calçado de segurança com palmilha antifatiga",
+    controls: "Pausas ativas, rodízio de atividades, assentos auxiliares, PO-002110",
+    legislation: "NR-17, PO-002110"
+},
+{
+    id: "I-266",
+    area: "Manutenção Mecânica",
+    location: "Tombador",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Postura restrita de longa duração",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Nenhum específico",
+    controls: "Ginástica laboral, pausas programadas, rodízio de funções, PO-002110",
+    legislation: "NR-17, PO-002110"
+},
+{
+    id: "I-267",
+    area: "Manutenção Mecânica",
+    location: "Tombador",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Ataque de ser vivo com peçonha",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Botas de segurança, luvas de couro, vestimenta adequada",
+    controls: "Manutenção da área limpa, inspeção prévia, controle de pragas, PO-002110",
+    legislation: "NR-31, PO-002110"
+},
+{
+    id: "I-268",
+    area: "Manutenção Mecânica",
+    location: "Tombador",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Contato com Energia elétrica",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Luvas de borracha, botas isolantes, capacete dielétrico",
+    controls: "Bloqueio e etiquetagem, treinamento específico, inspeção de equipamentos, PO-002110",
+    legislation: "NR-10, PO-002110"
+},
+{
+    id: "I-269",
+    area: "Manutenção Mecânica",
+    location: "Tombador",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Contato com Material/Produto Inflamável/Combustível (serviços de soldagem e corte)",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Luva de raspa, óculos de proteção, avental de couro, calçado de segurança",
+    controls: "Área isolada, extintores disponíveis, treinamento específico, inspeção de equipamentos, PO-002110",
+    legislation: "NR-23, PO-002110"
+},
+{
+    id: "I-270",
+    area: "Manutenção Mecânica",
+    location: "Tombador",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Contato com Objeto/ material cortante",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Luvas de malha de aço, óculos de proteção, vestimenta adequada",
+    controls: "Organização do local, treinamento, sinalização, PO-002110",
+    legislation: "NR-12, PO-002110"
+},
+{
+    id: "I-271",
+    area: "Manutenção Mecânica",
+    location: "Tombador",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Impacto por Objeto Projetado",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Óculos de proteção, capacete, protetor facial, vestimenta adequada",
+    controls: "Sinalização de área, barreiras de proteção, isolamento da área, PO-002110",
+    legislation: "NR-18, PO-002110"
+},
+{
+    id: "I-272",
+    area: "Manutenção Mecânica",
+    location: "Tombador",
+    activity: "Serviços a quente com conjunto oxiacetileno - Operação de Corte",
+    risk: "Queda de pessoa com diferença de nível - Trabalho em altura",
+    frequency: 5,
+    severity: 4,
+    score: 20,
+    riskLevel: "Alto",
+    ppe: "Cinto de segurança tipo paraquedista, capacete, talabarte",
+    controls: "Plataforma de trabalho, treinamento NR-35, inspeção de equipamentos, PO-002110",
+    legislation: "NR-35, PO-002110"
+}
+];
+
+        // Elementos DOM
+        const searchInput = document.getElementById('searchInput');
+        const searchButton = document.getElementById('searchButton');
+        const areaFilter = document.getElementById('areaFilter');
+        const riskFilter = document.getElementById('riskFilter');
+        const locationFilter = document.getElementById('locationFilter');
+        const resultsGrid = document.getElementById('resultsGrid');
+        const resultsCount = document.getElementById('resultsCount');
+        const sortSelect = document.getElementById('sortSelect');
+        const quickButtons = document.querySelectorAll('.quick-btn');
+        const riskModal = document.getElementById('riskModal');
+        const closeModal = document.getElementById('closeModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+        const navItems = document.querySelectorAll('.nav-item');
+
+        // Estado da aplicação
+        let currentData = [...riskData];
+        let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+        let recent = JSON.parse(localStorage.getItem('recent')) || [];
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            displayResults(currentData);
+            setupEventListeners();
+        });
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            searchInput.addEventListener('input', handleSearch);
+            searchButton.addEventListener('click', handleSearch);
+            areaFilter.addEventListener('change', handleFilter);
+            riskFilter.addEventListener('change', handleFilter);
+            locationFilter.addEventListener('change', handleFilter);
+            sortSelect.addEventListener('change', handleSort);
+            
+            quickButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    quickButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    areaFilter.value = this.dataset.area;
+                    handleFilter();
+                });
+            });
+            
+            closeModal.addEventListener('click', function() {
+                riskModal.style.display = 'none';
+            });
+            
+            window.addEventListener('click', function(event) {
+                if (event.target === riskModal) {
+                    riskModal.style.display = 'none';
+                }
+            });
+            
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                    handleNavigation(this.dataset.page);
+                });
+            });
+        }
+
+        // Manipular busca
+        function handleSearch() {
+            const searchTerm = searchInput.value.toLowerCase();
+            
+            if (searchTerm.length === 0) {
+                currentData = [...riskData];
+            } else {
+                currentData = riskData.filter(item => 
+                    item.activity.toLowerCase().includes(searchTerm) || 
+                    item.risk.toLowerCase().includes(searchTerm) ||
+                    item.location.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            applyFilters();
+        }
+
+        // Aplicar filtros
+        function applyFilters() {
+            let filteredData = [...currentData];
+            
+            const areaValue = areaFilter.value;
+            if (areaValue) {
+                filteredData = filteredData.filter(item => item.area === areaValue);
+            }
+            
+            const riskValue = riskFilter.value;
+            if (riskValue) {
+                filteredData = filteredData.filter(item => item.riskLevel === riskValue);
+            }
+            
+            const locationValue = locationFilter.value;
+            if (locationValue) {
+                filteredData = filteredData.filter(item => item.location === locationValue);
+            }
+            
+            handleSort(null, filteredData);
+        }
+
+        // Manipular filtros
+        function handleFilter() {
+            applyFilters();
+        }
+
+        // Manipular ordenação
+        function handleSort(e, dataToSort = null) {
+            const sortValue = e ? e.target.value : sortSelect.value;
+            const data = dataToSort || currentData;
+            
+            let sortedData = [...data];
+            
+            switch(sortValue) {
+                case 'name':
+                    sortedData.sort((a, b) => a.activity.localeCompare(b.activity));
+                    break;
+                case 'risk':
+                    const riskOrder = { 'Alto': 1, 'Médio': 2, 'Baixo': 3 };
+                    sortedData.sort((a, b) => riskOrder[a.riskLevel] - riskOrder[b.riskLevel]);
+                    break;
+                case 'area':
+                    sortedData.sort((a, b) => a.area.localeCompare(b.area));
+                    break;
+            }
+            
+            displayResults(sortedData);
+        }
+
+        // Exibir resultados
+        function displayResults(data) {
+            resultsGrid.innerHTML = '';
+            
+            if (data.length === 0) {
+                resultsGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h3>Nenhuma atividade encontrada</h3>
+                        <p>Tente ajustar os filtros ou termos de busca</p>
+                    </div>
+                `;
+                resultsCount.textContent = '0 atividades encontradas';
+                return;
+            }
+            
+            resultsCount.textContent = `${data.length} atividade(s) encontrada(s)`;
+            
+            data.forEach(item => {
+                const riskCard = document.createElement('div');
+                riskCard.className = 'risk-card';
+                riskCard.innerHTML = `
+                    <div class="risk-header">
+                        <span class="risk-level risk-${item.riskLevel.toLowerCase()}">Risco ${item.riskLevel}</span>
+                        <span class="risk-score">Pontuação: ${item.score}</span>
+                    </div>
+                    <div class="risk-content">
+                        <div class="risk-title">${item.activity}</div>
+                        <div class="risk-details">${item.risk}</div>
+                        <div class="risk-meta">
+                            <span><i class="fas fa-map-marker-alt"></i> ${item.location}</span>
+                            <span><i class="fas fa-tools"></i> ${item.area}</span>
+                        </div>
+                    </div>
+                    <div class="risk-actions">
+                        <button class="action-btn view-details" data-id="${item.id}">
+                            <i class="fas fa-eye"></i> Ver Detalhes
+                        </button>
+                        <button class="action-btn toggle-favorite" data-id="${item.id}">
+                            <i class="far fa-star"></i> Favoritar
+                        </button>
+                    </div>
+                `;
+                
+                resultsGrid.appendChild(riskCard);
+            });
+            
+            // Adicionar event listeners aos botões
+            document.querySelectorAll('.view-details').forEach(button => {
+                button.addEventListener('click', function() {
+                    const itemId = this.dataset.id;
+                    showRiskDetails(itemId);
+                });
+            });
+            
+            document.querySelectorAll('.toggle-favorite').forEach(button => {
+                button.addEventListener('click', function() {
+                    const itemId = this.dataset.id;
+                    toggleFavorite(itemId, this);
+                });
+            });
+            
+            // Atualizar ícones de favoritos
+            updateFavoriteIcons();
+        }
+
+        // Mostrar detalhes do risco
+        function showRiskDetails(itemId) {
+            const item = riskData.find(i => i.id === itemId);
+            if (!item) return;
+            
+            // Adicionar ao histórico de recentes
+            if (!recent.includes(itemId)) {
+                recent.unshift(itemId);
+                if (recent.length > 10) recent.pop();
+                localStorage.setItem('recent', JSON.stringify(recent));
+            }
+            
+            modalTitle.textContent = item.activity;
+            
+            modalBody.innerHTML = `
+                <div class="risk-detail-section">
+                    <h3>Informações Gerais</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">ID</div>
+                            <div class="detail-value">${item.id}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Área</div>
+                            <div class="detail-value">${item.area}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Localização</div>
+                            <div class="detail-value">${item.location}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Atividade</div>
+                            <div class="detail-value">${item.activity}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="risk-detail-section">
+                    <h3>Avaliação de Risco</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Risco Identificado</div>
+                            <div class="detail-value">${item.risk}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Frequência</div>
+                            <div class="detail-value">${item.frequency}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Gravidade</div>
+                            <div class="detail-value">${item.severity}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Pontuação</div>
+                            <div class="detail-value">${item.score}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Nível de Risco</div>
+                            <div class="detail-value"><span class="risk-level risk-${item.riskLevel.toLowerCase()}">${item.riskLevel}</span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="risk-detail-section">
+                    <h3>Medidas de Controle</h3>
+                    <div class="detail-item">
+                        <div class="detail-label">EPIs Recomendados</div>
+                        <div class="detail-value">${item.ppe}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Controles de Engenharia/Administrativos</div>
+                        <div class="detail-value">${item.controls}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Legislação Aplicável</div>
+                        <div class="detail-value">${item.legislation}</div>
+                    </div>
+                </div>
+            `;
+            
+            riskModal.style.display = 'block';
+        }
+
+        // Alternar favorito
+        function toggleFavorite(itemId, button) {
+            const index = favorites.indexOf(itemId);
+            
+            if (index === -1) {
+                favorites.push(itemId);
+                if (button) {
+                    button.innerHTML = '<i class="fas fa-star"></i> Favoritado';
+                }
+            } else {
+                favorites.splice(index, 1);
+                if (button) {
+                    button.innerHTML = '<i class="far fa-star"></i> Favoritar';
+                }
+            }
+            
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            updateFavoriteIcons();
+        }
+
+        // Atualizar ícones de favoritos
+        function updateFavoriteIcons() {
+            document.querySelectorAll('.toggle-favorite').forEach(button => {
+                const itemId = button.dataset.id;
+                if (favorites.includes(itemId)) {
+                    button.innerHTML = '<i class="fas fa-star"></i> Favoritado';
+                } else {
+                    button.innerHTML = '<i class="far fa-star"></i> Favoritar';
+                }
+            });
+        }
+
+        // Manipular navegação
+        function handleNavigation(page) {
+            switch(page) {
+                case 'search':
+                    // Já estamos na página de busca
+                    break;
+                case 'favorites':
+                    showFavorites();
+                    break;
+                case 'recent':
+                    showRecent();
+                    break;
+                case 'about':
+                    showAbout();
+                    break;
+            }
+        }
+
+        // Mostrar favoritos
+        function showFavorites() {
+            const favoriteData = riskData.filter(item => favorites.includes(item.id));
+            displayResults(favoriteData);
+            document.querySelector('.results-header h2').textContent = 'Atividades Favoritas';
+        }
+
+        // Mostrar recentes
+        function showRecent() {
+            const recentData = riskData.filter(item => recent.includes(item.id));
+            // Ordenar pela ordem em que foram visualizados (mais recentes primeiro)
+            recentData.sort((a, b) => recent.indexOf(a.id) - recent.indexOf(b.id));
+            displayResults(recentData);
+            document.querySelector('.results-header h2').textContent = 'Atividades Recentes';
+        }
+
+        // Mostrar sobre
+        function showAbout() {
+            resultsGrid.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>Matriz de Risco Digital</h3>
+                    <p>Sistema desenvolvido para facilitar a consulta de riscos ocupacionais na fábrica de cimento.</p>
+                    <p>Versão 1.0</p>
+                </div>
+            `;
+            document.querySelector('.results-header h2').textContent = 'Sobre o Sistema';
+        }
+    </script>
+</body>
+</html>
